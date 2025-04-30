@@ -1,4 +1,5 @@
 const db = require("../db/connection")
+const articles = require("../db/data/test-data/articles")
 
 const fetchTopics = (queries) => {
     let queryStr = `SELECT slug, description, img_url FROM topics`
@@ -35,7 +36,35 @@ const fetchArticleById = (articleId) => {
   };
 
 
-module.exports = {fetchTopics, fetchArticleById};
+  const fetchArticles = () => {
+    const queryStr = `
+      SELECT
+        articles.author,
+        articles.title,
+        articles.article_id,
+        articles.topic,
+        articles.created_at,
+        articles.votes,
+        articles.article_img_url,
+        CAST(COUNT(comments.comment_id) AS INTEGER) AS comment_count
+      FROM articles
+      LEFT JOIN comments ON articles.article_id = comments.article_id
+      GROUP BY articles.article_id
+      ORDER BY articles.created_at DESC;
+    `;
+  
+    return db.query(queryStr)
+      .then(({ rows }) => {
+        return rows
+      })
+      .catch((err) => {
+        console.error("DB Error:", err);
+        throw err; // Re-throw the error to be caught by the controller
+      })
+  }
+
+
+module.exports = {fetchTopics, fetchArticleById, fetchArticles};
 
 
 
