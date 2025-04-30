@@ -1,5 +1,5 @@
-const endpoints =require("../endpoints.json")
-const {fetchTopics, fetchArticleById} = require("../models/model")
+const endpoints = require("../endpoints.json")
+const {fetchTopics, fetchArticleById, fetchArticles} = require("../models/model")
 
 const getApi =(req, res) =>{
     res.status(200).send({endpoints})
@@ -40,6 +40,19 @@ const getApi =(req, res) =>{
   }
 
 
-module.exports ={getApi, getTopics, getArticleById}
+  const getArticles = (req, res, next) => {
+    return fetchArticles(req.query)
+      .then((articles) => {
+        res.status(200).send({ articles });
+      })
+      .catch((err) => {
+        console.error("Error fetching articles:", err)
+        //res.status(500).send({ msg: "Internal Server Error" })
+        next(err)
+      })
+  }
+
+
+module.exports ={getApi, getTopics, getArticleById, getArticles}
 
 

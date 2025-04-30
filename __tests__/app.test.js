@@ -38,7 +38,7 @@ describe ("GET/api/topics", () => {
     .expect(200)
     .then(({body: {topics}}) => {
       expect(Array.isArray(topics)).toBe(true)
-      expect(topics.length).toBeGreaterThan(0); // Ensure there are topics
+      expect(topics.length).toBeGreaterThan(0) // Ensure there are topics
       topics.forEach((topic) => {
         expect(topic).toHaveProperty("slug")
         expect(topic).toHaveProperty("description")
@@ -85,5 +85,47 @@ describe("GET /api/articles/:article_id", () => {
         expect(body).toHaveProperty("msg", "Article not found")
       })
   })
+})
 
+
+describe("GET /api/articles", () => {
+  test("200: Responds with an array of article objects", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles).toBeInstanceOf(Array);
+        expect(articles.length).toBeGreaterThan(0); // Ensure there are articles
+        articles.forEach((article) => {
+          expect(article).toHaveProperty("author");
+          expect(article).toHaveProperty("title");
+          expect(article).toHaveProperty("article_id");
+          expect(article).toHaveProperty("topic");
+          expect(article).toHaveProperty("created_at");
+          expect(article).toHaveProperty("votes");
+          expect(article).toHaveProperty("article_img_url");
+          expect(article).toHaveProperty("comment_count");
+          expect(typeof article.comment_count).toBe("number");
+          expect(article).not.toHaveProperty("body");
+        });
+      });
+  });
+
+  test("200: Articles are sorted by created_at in descending order", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles).toBeSortedBy('created_at', { descending: true })
+      })
+  })
+
+  /*test("500: Responds with an error message when there is a server error", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(500)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("msg", "Internal Server Error")
+      })
+  }) */
 })
