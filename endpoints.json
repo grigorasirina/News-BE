@@ -39,5 +39,35 @@
         "article_img_url": "https://images.unsplash.com/photo-1511044764041-e34722e352f8?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=c1644e20a7819aadeb350931ca6f6bdc&auto=format&fit=crop&w=1400&q=80"
       }
     }
+  },
+"GET /api/articles/:article_id/comments": {
+    "description": "Retrieves an array of comments for a given article ID.",
+    "pathParameters": ["article_id"],
+    "queries": [],
+    "exampleResponse": {
+      "comments": [
+        {
+          "comment_id": 1,
+          "votes": 5,
+          "created_at": "2020-07-09T20:11:03.000Z",
+          "author": "butter_bridge",
+          "body": "Oh, I've got compassion running out of my nose, pal!",
+          "article_id": 1
+        },
+        {
+          "comment_id": 2,
+          "votes": 14,
+          "created_at": "2020-06-04T09:33:00.000Z",
+          "author": "icellusedkars",
+          "body": "The beautiful thing about the NHS is, it's free to use, no matter who you are.  Try saying that in America.",
+          "article_id": 1
+        }
+      ]
+    },
+    "errors": [
+      "400: Invalid article ID format",
+      "404: Article not found"
+    ]
   }
 }
+
