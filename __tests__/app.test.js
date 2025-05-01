@@ -94,19 +94,19 @@ describe("GET /api/articles", () => {
       .get("/api/articles")
       .expect(200)
       .then(({ body: { articles } }) => {
-        expect(articles).toBeInstanceOf(Array);
-        expect(articles.length).toBeGreaterThan(0); // Ensure there are articles
+        expect(articles).toBeInstanceOf(Array)
+        expect(articles.length).toBeGreaterThan(0)
         articles.forEach((article) => {
-          expect(article).toHaveProperty("author");
-          expect(article).toHaveProperty("title");
-          expect(article).toHaveProperty("article_id");
-          expect(article).toHaveProperty("topic");
-          expect(article).toHaveProperty("created_at");
-          expect(article).toHaveProperty("votes");
-          expect(article).toHaveProperty("article_img_url");
-          expect(article).toHaveProperty("comment_count");
-          expect(typeof article.comment_count).toBe("number");
-          expect(article).not.toHaveProperty("body");
+          expect(article).toHaveProperty("author")
+          expect(article).toHaveProperty("title")
+          expect(article).toHaveProperty("article_id")
+          expect(article).toHaveProperty("topic")
+          expect(article).toHaveProperty("created_at")
+          expect(article).toHaveProperty("votes")
+          expect(article).toHaveProperty("article_img_url")
+          expect(article).toHaveProperty("comment_count")
+          expect(typeof article.comment_count).toBe("number")
+          expect(article).not.toHaveProperty("body")
         });
       });
   });
@@ -119,13 +119,72 @@ describe("GET /api/articles", () => {
         expect(articles).toBeSortedBy('created_at', { descending: true })
       })
   })
-
-  /*test("500: Responds with an error message when there is a server error", () => {
-    return request(app)
-      .get("/api/articles")
-      .expect(500)
-      .then(({ body }) => {
-        expect(body).toHaveProperty("msg", "Internal Server Error")
-      })
-  }) */
 })
+
+describe("GET /api/articles/:article_id/comments", () => {
+  test("200: Responds with an array of comments for the given article_id", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .expect(200)
+      .then(({ body: { comments } }) => {
+        expect(comments).toBeInstanceOf(Array)
+        if (comments.length > 0) {
+          comments.forEach((comment) => {
+            expect(comment).toHaveProperty("comment_id")
+            expect(comment).toHaveProperty("votes")
+            expect(comment).toHaveProperty("created_at")
+            expect(comment).toHaveProperty("author")
+            expect(comment).toHaveProperty("body")
+            expect(comment).toHaveProperty("article_id")
+          })
+        }
+      })
+  })
+
+  test("200: Comments are sorted by created_at in descending order", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .expect(200)
+      .then(({ body: { comments } }) => {
+        expect(comments).toBeSortedBy('created_at', { descending: true })
+      })
+  })
+
+  test("400: Responds with an error message for an invalid article_id", () => {
+    return request(app)
+      .get("/api/articles/invalid_id/comments")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("msg", "Invalid article ID format")
+      })
+  })
+
+  test("404: Responds with an error message if the article_id is valid but doesn't exist", () => {
+    return request(app)
+      .get("/api/articles/999/comments")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("msg", "Article not found")
+      })
+  })
+
+  test("200: Responds with an empty array if the article exists but has no comments", () => {
+    return request(app)
+      .get("/api/articles/2/comments")
+      .expect(200)
+      .then(({ body: { comments } }) => {
+        expect(comments).toBeInstanceOf(Array)
+        expect(comments.length).toBe(0)
+      })
+  })
+
+  test("404: Responds with an error message if the article_id is valid but doesn't exist", () => {
+    return request(app)
+      .get("/api/articles/123456789/comments")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("msg", "Article not found");
+      })
+  })
+})
+

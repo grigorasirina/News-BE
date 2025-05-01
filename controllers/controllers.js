@@ -1,5 +1,5 @@
 const endpoints = require("../endpoints.json")
-const {fetchTopics, fetchArticleById, fetchArticles} = require("../models/model")
+const {fetchTopics, fetchArticleById, fetchArticles, fetchArticleComments} = require("../models/model")
 
 const getApi =(req, res) =>{
     res.status(200).send({endpoints})
@@ -18,16 +18,15 @@ const getApi =(req, res) =>{
 
 
   const getArticleById = (req, res) => {
-    const { article_id } = req.params // Extract the article_id from req.params
-
-    // Check if article_id is a valid number
+    const { article_id } = req.params 
+    
   if (isNaN(article_id)) {
     return res.status(400).send({ msg: 'Invalid article ID format' })
   }
   
     return fetchArticleById(article_id)
       .then((article) => {
-        res.status(200).send({ article }) // Send the retrieved article in the response
+        res.status(200).send({ article }) 
       })
       .catch((err) => {
         if (err.status === 404) {
@@ -47,12 +46,38 @@ const getApi =(req, res) =>{
       })
       .catch((err) => {
         console.error("Error fetching articles:", err)
-        //res.status(500).send({ msg: "Internal Server Error" })
         next(err)
       })
   }
 
 
-module.exports ={getApi, getTopics, getArticleById, getArticles}
+  const getArticleComments = (req, res, next) => {
+    const { article_id } = req.params
+    if (isNaN(article_id)) {
+      return res.status(400).send({ msg: 'Invalid article ID format' });
+    }
+    return fetchArticleComments(article_id)
+      .then((comments) => {
+        if (!comments || comments.length === 0) {
+          return fetchArticleById(article_id)
+            .then(() => {
+              res.status(200).send({ comments: [] })
+            })
+            .catch(() => {
+               res.status(404).send({ msg: 'Article not found' })
+            })
+  
+        }
+        res.status(200).send({ comments })
+      })
+      .catch((err) => {
+        console.error("Error fetching article comments:", err);
+        next(err)
+      })
+
+  }
+
+
+module.exports ={getApi, getTopics, getArticleById, getArticles, getArticleComments}
 
 

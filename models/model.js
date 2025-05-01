@@ -31,9 +31,9 @@ const fetchArticleById = (articleId) => {
         if (rows.length === 0) {
           return Promise.reject({ status: 404, msg: 'Article not found' });
         }
-        return rows[0]; // Return the single article object
-      });
-  };
+        return rows[0]
+      })
+  }
 
 
   const fetchArticles = () => {
@@ -58,13 +58,39 @@ const fetchArticleById = (articleId) => {
         return rows
       })
       .catch((err) => {
-        console.error("DB Error:", err);
-        throw err; // Re-throw the error to be caught by the controller
+        console.error("DB Error:", err)
+        throw err
       })
   }
 
 
-module.exports = {fetchTopics, fetchArticleById, fetchArticles};
+  const fetchArticleComments = (articleId) => {
+    const queryStr = `
+      SELECT
+        comment_id,
+        votes,
+        created_at,
+        author,
+        body,
+        article_id
+      FROM comments
+      WHERE article_id = $1
+      ORDER BY created_at DESC;
+    `;
+    const values = [articleId]
+  
+    return db.query(queryStr, values)
+      .then(({ rows }) => {
+        return rows
+      })
+      .catch((err) => {
+        console.error("DB Error:", err)
+        throw err 
+      })
+  }
+
+
+module.exports = {fetchTopics, fetchArticleById, fetchArticles, fetchArticleComments};
 
 
 
