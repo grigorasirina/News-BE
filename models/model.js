@@ -90,7 +90,36 @@ const fetchArticleById = (articleId) => {
   }
 
 
-module.exports = {fetchTopics, fetchArticleById, fetchArticles, fetchArticleComments};
+  const fetchUserByUsername = (username) => {
+    const queryStr = `SELECT * FROM users WHERE username = $1`
+    const values = [username]
+    return db.query(queryStr, values).then(({ rows }) => {
+      if (rows.length === 0) {
+        return Promise.reject({ status: 404, msg: "User not found" })
+      }
+      return rows[0]
+    });
+  };
+
+ const addArticleComment = (articleId, username, body) => {
+   const queryStr = `
+     INSERT INTO comments (article_id, author, body)
+     VALUES ($1, $2, $3)
+     RETURNING *;
+   `;
+   const values = [articleId, username, body];
+   return db.query(queryStr, values)
+     .then(({ rows }) => {
+       return rows[0]
+     })
+     .catch((err) => {
+       console.error("DB Error:", err);
+       throw err
+     })
+ }
+
+
+module.exports = {fetchTopics, fetchArticleById, fetchArticles, fetchArticleComments, fetchUserByUsername, addArticleComment};
 
 
 

@@ -3,7 +3,6 @@ const format = require("pg-format")
 const { values } = require("../data/test-data/articles");
 
 const seed = ({ topicData, userData, articleData, commentData }) => {
-    //drop databases for topics, users, articles, comments
     return db.query('DROP TABLE IF EXISTS comments')
     .then(() => {
     return db.query('DROP TABLE IF EXISTS articles')
@@ -15,7 +14,6 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
     })
 
 
-    //create tables for topics, users, articles,comments
     .then(()=> {
     return db.query(`CREATE TABLE topics (
       slug VARCHAR(40) PRIMARY KEY,

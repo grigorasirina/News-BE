@@ -68,6 +68,32 @@
       "400: Invalid article ID format",
       "404: Article not found"
     ]
+  },
+
+"POST /api/articles/:article_id/comments": {
+    "description": "Adds a new comment to an article.",
+    "pathParameters": ["article_id"],
+    "requestBody": {
+      "username": "string",
+      "body": "string"
+    },
+    "exampleResponse": {
+      "comment": {
+        "comment_id": 18,
+        "author": "icellusedkars",
+        "body": "This is a great article",
+        "article_id": 1,
+        "votes": 0,
+        "created_at": "2024-08-23T12:00:00.000Z"
+      }
+    },
+    "errors": [
+      "400: Invalid article ID format",
+      "400: Missing required fields (username or body)",
+      "404: Article not found",
+      "404: User not found"
+    ]
   }
+
 }
 
