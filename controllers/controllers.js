@@ -1,5 +1,5 @@
 const endpoints = require("../endpoints.json")
-const {fetchTopics, fetchArticleById, fetchArticles, fetchArticleComments} = require("../models/model")
+const {fetchTopics, fetchArticleById, fetchArticles, fetchArticleComments, fetchUserByUsername, addArticleComment} = require("../models/model")
 
 const getApi =(req, res) =>{
     res.status(200).send({endpoints})
@@ -74,10 +74,41 @@ const getApi =(req, res) =>{
         console.error("Error fetching article comments:", err);
         next(err)
       })
-
   }
 
 
-module.exports ={getApi, getTopics, getArticleById, getArticles, getArticleComments}
+  const postArticleComment = (req, res, next) => {
+    const { article_id } = req.params
+    const { username, body } = req.body
+    
+    if (isNaN(article_id)) {
+      return res.status(400).send({ msg: 'Invalid article ID format' })
+    }
+
+    if (!username || !body) {
+      return res.status(400).send({ msg: 'Missing required fields' })
+    }
+     return fetchArticleById(article_id)
+     .then(()=> {
+       return fetchUserByUsername(username)
+     })
+     .then(() => {
+       return addArticleComment(article_id, username, body)
+     })
+      .then((comment) => {
+        res.status(201).send({ comment })
+      })
+      .catch((err) => {
+        if (err.status === 404) {
+          return res.status(404).send({ msg: err.msg })
+        }
+        console.error("Error posting article comment:", err)
+        next(err)
+      })
+  }
+
+
+
+module.exports ={getApi, getTopics, getArticleById, getArticles, getArticleComments, postArticleComment}
 
 

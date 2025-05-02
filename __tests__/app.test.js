@@ -3,7 +3,9 @@ const db = require("../db/connection")
 const seed = require("../db/seeds/seed")
 const data = require("../db/data/test-data/index")
 const app = require("../app")
-const request = require("supertest")
+const request = require("supertest");
+const { fetchArticles } = require("../models/model");
+const { getArticles } = require("../controllers/controllers");
 
 
 beforeEach(() => {
@@ -187,4 +189,96 @@ describe("GET /api/articles/:article_id/comments", () => {
       })
   })
 })
+
+
+describe("POST /api/articles/:article_id/comments", () => {
+  test("201: Responds with the posted comment", () => {
+    const newComment = {
+      username: "butter_bridge", 
+      body: "This is a new comment for article 1.",
+    };
+
+    return request(app)
+      .post("/api/articles/1/comments") 
+      .send(newComment)
+      .expect(201)
+      .then(({ body: { comment } }) => {
+        expect(comment).toHaveProperty("comment_id")
+        expect(comment).toHaveProperty("author", newComment.username)
+        expect(comment).toHaveProperty("body", newComment.body)
+        expect(comment).toHaveProperty("article_id", 1)
+        expect(comment).toHaveProperty("votes", 0)
+        expect(comment).toHaveProperty("created_at")
+      })
+    })
+
+    test("400: Responds with an error message for an invalid article_id", () => {
+      const newComment = {
+        username: "butter_bridge",
+        body: "This is a new comment.",
+      }
+      return request(app)
+        .post("/api/articles/invalid_id/comments")
+        .send(newComment)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body).toHaveProperty("msg", "Invalid article ID format")
+        })
+    })
+
+    test("400: Responds with an error message for missing username", () => {
+      const newComment = {
+        body: "This is a new comment.",
+      };
+      return request(app)
+        .post("/api/articles/1/comments")
+        .send(newComment)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body).toHaveProperty("msg", "Missing required fields")
+        })
+    })
+
+    test("400: Responds with an error message for missing body", () => {
+      const newComment = {
+        username: "butter_bridge",
+      };
+      return request(app)
+        .post("/api/articles/1/comments")
+        .send(newComment)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body).toHaveProperty("msg", "Missing required fields")
+        })
+    })
+
+    test("404: Responds with an error message if the article_id is valid but doesn't exist", () => {
+      const newComment = {
+        username: "butter_bridge",
+        body: "This is a new comment.",
+      };
+      return request(app)
+        .post("/api/articles/999/comments")
+        .send(newComment)
+        .expect(404)
+        .then(({ body }) => {
+          expect(body).toHaveProperty("msg", "Article not found")
+        })
+    })
+
+    test("404: Responds with an error message if the username is valid but doesn't exist", () => {
+      const newComment = {
+        username: "non_existent_user", 
+        body: "This is a comment",
+      };
+      return request(app)
+        .post("/api/articles/1/comments")
+        .send(newComment)
+        .expect(404)
+        .then(({ body }) => {
+          expect(body).toHaveProperty("msg", "User not found")
+        })
+    })
+
+  })
 
