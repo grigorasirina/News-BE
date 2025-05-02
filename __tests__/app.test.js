@@ -279,6 +279,76 @@ describe("POST /api/articles/:article_id/comments", () => {
           expect(body).toHaveProperty("msg", "User not found")
         })
     })
+  })
 
+
+  describe("PATCH /api/articles/:article_id", () => {
+    test("200: Responds with the updated article", () => {
+      return request(app)
+        .patch("/api/articles/1")
+        .send({ inc_votes: 1 }) 
+        .expect(200)
+        .then(({ body: { article } }) => {
+          expect(article).toHaveProperty("article_id", 1)
+          expect(article).toHaveProperty("title")
+          expect(article).toHaveProperty("body")
+          expect(article).toHaveProperty("votes", expect.any(Number))
+          expect(article).toHaveProperty("topic")
+          expect(article).toHaveProperty("author")
+          expect(article).toHaveProperty("created_at")
+          expect(article).toHaveProperty("article_img_url")
+        })
+    })
+
+    test("200: Responds with the updated article when inc_votes is negative", () => {
+      return request(app)
+        .patch("/api/articles/1")
+        .send({ inc_votes: -5 })
+        .expect(200)
+        .then(({ body: { article } }) => {
+          expect(article).toHaveProperty("article_id", 1)
+          expect(article).toHaveProperty("votes", expect.any(Number))
+        })
+    })
+
+    test("400: Responds with an error message for an invalid article_id", () => {
+      return request(app)
+        .patch("/api/articles/invalid_id")
+        .send({ inc_votes: 1 })
+        .expect(400)
+        .then(({ body }) => {
+          expect(body).toHaveProperty("msg", "Invalid article ID format")
+        })
+    })
+
+    test("400: Responds with an error message for missing inc_votes", () => {
+      return request(app)
+        .patch("/api/articles/1")
+        .send({}) 
+        .expect(400)
+        .then(({ body }) => {
+          expect(body).toHaveProperty("msg", "Missing inc_votes");
+        })
+    })
+
+    test("400: Responds with an error message for invalid inc_votes", () => {
+      return request(app)
+        .patch("/api/articles/1")
+        .send({ inc_votes: "not a number" })
+        .expect(400)
+        .then(({ body }) => {
+          expect(body).toHaveProperty("msg", "Invalid inc_votes value")
+        })
+    })
+
+    test("404: Responds with an error message if the article_id is valid but doesn't exist", () => {
+      return request(app)
+        .patch("/api/articles/999") 
+        .send({ inc_votes: 1 })
+        .expect(404)
+        .then(({ body }) => {
+          expect(body).toHaveProperty("msg", "Article not found")
+        })
+    })
   })
 

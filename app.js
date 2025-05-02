@@ -1,7 +1,7 @@
 const db = require("./db/connection")
 const express = require("express");
 const app = express();
-const {getApi, getTopics, getArticleById, getArticles, getArticleComments, postArticleComment} =require("./controllers/controllers")
+const {getApi, getTopics, getArticleById, getArticles, getArticleComments, postArticleComment, patchArticleById} =require("./controllers/controllers")
 const sorted = require("jest-sorted")
 
 app.use(express.json())
@@ -17,6 +17,8 @@ app.get('/api/articles', getArticles)
 app.get('/api/articles/:article_id/comments', getArticleComments)
 
 app.post('/api/articles/:article_id/comments', postArticleComment)
+
+app.patch('/api/articles/:article_id', patchArticleById)
 
 
 module.exports = app
