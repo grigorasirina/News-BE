@@ -83,10 +83,6 @@ const fetchArticleById = (articleId) => {
       .then(({ rows }) => {
         return rows
       })
-      .catch((err) => {
-        console.error("DB Error:", err)
-        throw err 
-      })
   }
 
 
@@ -98,8 +94,8 @@ const fetchArticleById = (articleId) => {
         return Promise.reject({ status: 404, msg: "User not found" })
       }
       return rows[0]
-    });
-  };
+    })
+  }
 
  const addArticleComment = (articleId, username, body) => {
    const queryStr = `
@@ -112,14 +108,29 @@ const fetchArticleById = (articleId) => {
      .then(({ rows }) => {
        return rows[0]
      })
-     .catch((err) => {
-       console.error("DB Error:", err);
-       throw err
-     })
  }
 
 
-module.exports = {fetchTopics, fetchArticleById, fetchArticles, fetchArticleComments, fetchUserByUsername, addArticleComment};
+ const updateArticleVotes = (articleId, inc_votes) => {
+  const queryStr = `
+    UPDATE articles
+    SET votes = votes + $1
+    WHERE article_id = $2
+    RETURNING *;
+  `;
+  const values = [inc_votes, articleId]
+
+  return db.query(queryStr, values)
+    .then(({ rows }) => {
+      if (rows.length === 0) {
+        return Promise.reject({ status: 404, msg: 'Article not found' })
+      }
+      return rows[0]
+    })
+}
+
+
+module.exports = {fetchTopics, fetchArticleById, fetchArticles, fetchArticleComments, fetchUserByUsername, addArticleComment,   updateArticleVotes}
 
 
 

@@ -93,7 +93,36 @@
       "404: Article not found",
       "404: User not found"
     ]
-  }
+  },
 
+
+  "PATCH /api/articles/:article_id": {
+    "description": "Updates the votes of an article by article_id.",
+    "requestBody": "{ inc_votes: newVote }",
+    "exampleRequestBody": "{ inc_votes: 5 }",
+    "responses": {
+      "200": {
+        "description": "Returns the updated article.",
+        "exampleResponse": {
+          "article_id": 1,
+          "title": "Living in the shadow of a great man",
+          "body": "The presence of an article...",
+          "votes": 105,
+          "topic": "football",
+          "author": "butter_bridge",
+          "created_at": "2020-07-09T20:11:00.000Z",
+          "article_img_url": "https://images.example.com/article1.jpg"
+        }
+      },
+      "400": {
+        "description": "Returns an error message for invalid input.",
+        "exampleResponse": { "msg": "Invalid article ID format" }
+      },
+      "404": {
+        "description": "Returns an error message if the article is not found.",
+        "exampleResponse": { "msg": "Article not found" }
+      }
+    }
+  }
 }
 

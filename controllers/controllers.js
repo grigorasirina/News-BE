@@ -1,5 +1,5 @@
 const endpoints = require("../endpoints.json")
-const {fetchTopics, fetchArticleById, fetchArticles, fetchArticleComments, fetchUserByUsername, addArticleComment} = require("../models/model")
+const {fetchTopics, fetchArticleById, fetchArticles, fetchArticleComments, fetchUserByUsername, addArticleComment, updateArticleVotes} = require("../models/model")
 
 const getApi =(req, res) =>{
     res.status(200).send({endpoints})
@@ -108,7 +108,37 @@ const getApi =(req, res) =>{
   }
 
 
+const patchArticleById = (req, res, next) => {
+  const { article_id } = req.params
+  const { inc_votes } = req.body
 
-module.exports ={getApi, getTopics, getArticleById, getArticles, getArticleComments, postArticleComment}
+  if (isNaN(article_id)) {
+    return res.status(400).send({ msg: 'Invalid article ID format' })
+  }
+
+  if (inc_votes === undefined) {
+    return res.status(400).send({ msg: 'Missing inc_votes' })
+  }
+
+  if (typeof inc_votes !== 'number') {
+    return res.status(400).send({ msg: 'Invalid inc_votes value' })
+  }
+
+  updateArticleVotes(article_id, inc_votes)
+    .then((article) => {
+      res.status(200).send({ article })
+    })
+    .catch((err) => {
+      if (err.status === 404) {
+        return res.status(404).send({ msg: err.msg })
+      }
+      next(err)
+    })
+}
+
+
+
+
+module.exports ={getApi, getTopics, getArticleById, getArticles, getArticleComments, postArticleComment, patchArticleById }
 
 
