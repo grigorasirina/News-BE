@@ -352,3 +352,37 @@ describe("POST /api/articles/:article_id/comments", () => {
     })
   })
 
+
+  describe("DELETE /api/comments/:comment_id", () => {
+    test("204: Responds with no content when the comment is successfully deleted", () => {
+      return request(app)
+        .delete("/api/comments/1") 
+        .expect(204)
+        .then((response) => {
+          expect(response.body).toEqual({})
+          return db.query("SELECT * FROM comments WHERE comment_id = 1")
+        })
+        .then(({ rows }) => {
+          expect(rows.length).toBe(0)
+        })
+    })
+  
+    test("400: Responds with an error message for an invalid comment_id", () => {
+      return request(app)
+        .delete("/api/comments/invalid_id")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body).toHaveProperty("msg", "Invalid comment ID format")
+        })
+    })
+  
+    test("404: Responds with an error message if the comment_id is valid but doesn't exist", () => {
+      return request(app)
+        .delete("/api/comments/12345")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body).toHaveProperty("msg", "Comment not found")
+        })
+    })
+  })
+
