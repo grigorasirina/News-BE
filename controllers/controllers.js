@@ -1,5 +1,5 @@
-const endpoints = require("../endpoints.json")
-const {fetchTopics, fetchArticleById, fetchArticles, fetchArticleComments, fetchUserByUsername, addArticleComment, updateArticleVotes} = require("../models/model")
+const endpoints = require("../endpoints.json");
+const {fetchTopics, fetchArticleById, fetchArticles, fetchArticleComments, fetchUserByUsername, addArticleComment, updateArticleVotes, removeCommentById} = require("../models/model")
 
 const getApi =(req, res) =>{
     res.status(200).send({endpoints})
@@ -137,8 +137,28 @@ const patchArticleById = (req, res, next) => {
 }
 
 
+const deleteCommentById = (req, res, next) => {
+  const { comment_id } = req.params
+
+  if (isNaN(comment_id)) {
+    return res.status(400).send({ msg: 'Invalid comment ID format' })
+  }
+
+  removeCommentById(comment_id)
+    .then(() => {
+      res.status(204).send()
+    })
+    .catch((err) => {
+      if (err.status === 404) {
+        return res.status(404).send({ msg: err.msg })
+      }
+      next(err)
+    })
+}
 
 
-module.exports ={getApi, getTopics, getArticleById, getArticles, getArticleComments, postArticleComment, patchArticleById }
+
+
+module.exports ={getApi, getTopics, getArticleById, getArticles, getArticleComments, postArticleComment, patchArticleById, deleteCommentById }
 
 

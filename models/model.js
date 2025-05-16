@@ -130,7 +130,24 @@ const fetchArticleById = (articleId) => {
 }
 
 
-module.exports = {fetchTopics, fetchArticleById, fetchArticles, fetchArticleComments, fetchUserByUsername, addArticleComment,   updateArticleVotes}
+const removeCommentById = (commentId) => {
+  const queryStr = `
+    DELETE FROM comments
+    WHERE comment_id = $1
+    RETURNING *;
+  `;
+  const values = [commentId];
+
+  return db.query(queryStr, values)
+    .then(({ rows }) => {
+      if (rows.length === 0) {
+        return Promise.reject({ status: 404, msg: 'Comment not found' });
+      }
+    })
+}
+
+
+module.exports = {fetchTopics, fetchArticleById, fetchArticles, fetchArticleComments, fetchUserByUsername, addArticleComment,   updateArticleVotes, removeCommentById}
 
 
 
