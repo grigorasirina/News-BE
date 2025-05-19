@@ -1,6 +1,8 @@
+const cors = require('cors');
 const db = require("./db/connection")
 const express = require("express");
 const app = express();
+app.use(cors());
 const {getApi, getTopics, getArticleById, getArticles, getArticleComments, postArticleComment, patchArticleById, deleteCommentById} =require("./controllers/controllers")
 
 
