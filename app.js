@@ -2,7 +2,7 @@ const db = require("./db/connection")
 const express = require("express");
 const app = express();
 const {getApi, getTopics, getArticleById, getArticles, getArticleComments, postArticleComment, patchArticleById, deleteCommentById} =require("./controllers/controllers")
-const sorted = require("jest-sorted")
+
 
 app.use(express.json())
 
