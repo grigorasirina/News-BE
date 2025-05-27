@@ -129,8 +129,9 @@ describe("GET /api/articles/:article_id/comments", () => {
       .get("/api/articles/1/comments")
       .expect(200)
       .then(({ body: { comments } }) => {
+        console.log(comments, ".............")
         expect(comments).toBeInstanceOf(Array)
-        if (comments.length > 0) {
+        expect(comments.length).toBe(11)
           comments.forEach((comment) => {
             expect(comment).toHaveProperty("comment_id")
             expect(comment).toHaveProperty("votes")
@@ -139,7 +140,7 @@ describe("GET /api/articles/:article_id/comments", () => {
             expect(comment).toHaveProperty("body")
             expect(comment).toHaveProperty("article_id")
           })
-        }
+        
       })
   })
 

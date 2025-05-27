@@ -78,9 +78,9 @@ const fetchArticleById = (articleId) => {
       ORDER BY created_at DESC;
     `;
     const values = [articleId]
-  
     return db.query(queryStr, values)
       .then(({ rows }) => {
+        console.log(rows, "rows")
         return rows
       })
   }

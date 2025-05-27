@@ -1,6 +1,7 @@
 const db = require("../connection");
 const format = require("pg-format")
 const { values } = require("../data/test-data/articles");
+const { createArticlesLookupObj, convertTimestampToDate } = require("../seeds/utils");
 
 const seed = ({ topicData, userData, articleData, commentData }) => {
     return db.query('DROP TABLE IF EXISTS comments')
@@ -47,7 +48,7 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
   .then(()=> {
     return db.query(`CREATE TABLE comments (
       comment_id SERIAL PRIMARY KEY,
-      article_id INT REFERENCES articles(article_ID),
+      article_id INT REFERENCES articles(article_ID) NOT NULL,
       body TEXT,
       votes INT DEFAULT 0,
       author VARCHAR(30) REFERENCES users(username),
@@ -103,26 +104,32 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
     )
     return db.query(insertArticleString)
   })
-.then(() => {
-  
-})
 
+.then((articlesResult) => {
+    const articlesLookup = createArticlesLookupObj(articlesResult.rows);
 
-.then(() => {
     const formattedComment = commentData.map((comment) => {
-       const createdAtDate = new Date(comment.created_at)
-      return [comment.article_id, comment.body, comment.votes, comment.author, createdAtDate]
-    })
+        const createdAtDate = new Date(comment.created_at);
+        const articleId = articlesLookup[comment.article_title];
+
+        console.log("articleid", articleId)
+
+        if (articleId === undefined) {
+            console.warn(`Warning: Comment "${comment.body}" has no matching article_id for title "${comment.article_title}". This comment will be skipped.`);
+            return null;
+        }
+
+        return [articleId, comment.body, comment.votes, comment.author, createdAtDate];
+    }).filter(Boolean);
+
     const insertCommentString = format(
-      `INSERT INTO comments
-      (article_id, body, votes, author, created_at)
-      VALUES
-      %L 
-      RETURNING *;`,
-      formattedComment
-    )
-    return db.query(insertCommentString)
-  })
+        `INSERT INTO comments (article_id, body, votes, author, created_at) VALUES %L RETURNING *;`,
+        formattedComment
+    );
+    console.log("Formatted Comments for Insertion (first 5 for check):", formattedComment.slice(0, 5));
+    return db.query(insertCommentString);
 })
-}
+    })
+  }
 module.exports = seed;
+  
