@@ -474,3 +474,38 @@ describe("GET /api/articles (Sorting Queries)", () => {
       });
   });
 });
+
+
+describe("GET /api/articles (topic query)", () => {
+  test("200: responds with articles filtered by a valid topic query", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch") 
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles).toBeInstanceOf(Array);
+        expect(articles.length).toBeGreaterThan(0); 
+        articles.forEach((article) => {
+          expect(article).toHaveProperty("topic", "mitch"); 
+          expect(article).toMatchObject({
+            article_id: expect.any(Number),
+            title: expect.any(String),
+            author: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            article_img_url: expect.any(String),
+            comment_count: expect.any(Number),
+          });
+          expect(article).not.toHaveProperty("body"); 
+        });
+      });
+  });
+
+  test("404: responds with error if topic does not exist", () => {
+    return request(app)
+      .get("/api/articles?topic=nonexistenttopic123") 
+      .expect(404)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("msg", "Topic not found");
+      });
+  });
+});
