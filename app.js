@@ -1,6 +1,8 @@
-const db = require("./db/connection")
+const cors = require("cors");
+const db = require("./db/connection");
 const express = require("express");
 const app = express();
+
 const {getApi, getTopics, getArticleById, getArticles, getArticleComments, postArticleComment, patchArticleById} =require("./controllers/controllers")
 const sorted = require("jest-sorted")
 const apiRouter = require('./routes/api-router');
@@ -9,15 +11,49 @@ app.use(express.json())
 
 app.use('/api', apiRouter); 
 
-app.get('/api/articles/:article_id', getArticleById)
+app.use(cors());
+const {
+  getApi,
+  getTopics,
+  getArticleById,
+  getArticles,
+  getArticleComments,
+  postArticleComment,
+  patchArticleById,
+  deleteCommentById,
+} = require("./controllers/controllers");
 
-app.get('/api/articles', getArticles)
+app.use(express.json());
 
-app.get('/api/articles/:article_id/comments', getArticleComments)
+app.get("/api", getApi);
 
-app.post('/api/articles/:article_id/comments', postArticleComment)
+app.get("/api/topics", getTopics);
 
-app.patch('/api/articles/:article_id', patchArticleById)
+app.get("/api/articles/:article_id", getArticleById);
+
+app.get("/api/articles", getArticles);
 
 
-module.exports = app
+app.get("/api/articles/:article_id/comments", getArticleComments);
+
+app.post("/api/articles/:article_id/comments", postArticleComment);
+
+app.patch("/api/articles/:article_id", patchArticleById);
+
+app.delete("/api/comments/:comment_id", deleteCommentById);
+
+app.use((err, req, res, next) => {
+  console.error(err);
+
+  if (err.status && err.msg) {
+    res.status(err.status).send({ msg: err.msg });
+  } else if (err.code === "22P02") {
+    res.status(400).send({ msg: "Invalid input" });
+  } else if (err.code === "23502" || err.code === "23503") {
+    res.status(400).send({ msg: "Bad request" });
+  } else {
+    res.status(500).send({ msg: "Internal Server Error" });
+  }
+});
+
+module.exports = app;

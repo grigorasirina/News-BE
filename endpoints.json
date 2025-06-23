@@ -2,6 +2,7 @@
   "GET /api": {
     "description": "serves up a json representation of all the available endpoints of the api"
   },
+
   "GET /api/topics": {
     "description": "serves an array of all topics",
     "queries": [],
@@ -9,14 +10,17 @@
       "topics": [{ "slug": "football", "description": "Footie!" }]
     }
   },
+
   "GET /api/articles": {
-    "description": "serves an array of all articles",
+    "description": "serves an array of all articles, accepts sort_by and order queries",
+    "queries": ["topic", "sort_by", "order"],
     "exampleResponse": {
       "articles": [
         {
           "title": "Seafood substitutions are increasing",
           "topic": "cooking",
           "author": "weegembump",
+          "body": "Text from the article..",
           "created_at": "2018-05-30T15:59:13.341Z",
           "votes": 0,
           "comment_count": 6
@@ -24,6 +28,7 @@
       ]
     }
   },
+
   "GET /api/articles/:article_id": {
     "description": "serves an article by its article_id",
     "pathParameters": ["article_id"],
@@ -40,7 +45,8 @@
       }
     }
   },
-"GET /api/articles/:article_id/comments": {
+
+  "GET /api/articles/:article_id/comments": {
     "description": "Retrieves an array of comments for a given article ID.",
     "pathParameters": ["article_id"],
     "queries": [],
@@ -64,13 +70,10 @@
         }
       ]
     },
-    "errors": [
-      "400: Invalid article ID format",
-      "404: Article not found"
-    ]
+    "errors": ["400: Invalid article ID format", "404: Article not found"]
   },
 
-"POST /api/articles/:article_id/comments": {
+  "POST /api/articles/:article_id/comments": {
     "description": "Adds a new comment to an article.",
     "pathParameters": ["article_id"],
     "requestBody": {
@@ -94,7 +97,6 @@
       "404: User not found"
     ]
   },
-
 
   "PATCH /api/articles/:article_id": {
     "description": "Updates the votes of an article by article_id.",
@@ -123,6 +125,22 @@
         "exampleResponse": { "msg": "Article not found" }
       }
     }
+  },
+
+  "DELETE /api/comments/:comment_id": {
+    "description": "Deletes a comment by comment_id.",
+    "responses": {
+      "204": {
+        "description": "The comment was successfully deleted.  No content is returned."
+      },
+      "400": {
+        "description": "Returns an error message for an invalid comment ID format.",
+        "exampleResponse": { "msg": "Invalid comment ID format" }
+      },
+      "404": {
+        "description": "Returns an error message if the comment ID is valid but the comment does not exist.",
+        "exampleResponse": { "msg": "Comment not found" }
+      }
+    }
   }
 }
-
