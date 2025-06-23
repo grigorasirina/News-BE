@@ -3,12 +3,11 @@ const express = require("express");
 const app = express();
 const {getApi, getTopics, getArticleById, getArticles, getArticleComments, postArticleComment, patchArticleById} =require("./controllers/controllers")
 const sorted = require("jest-sorted")
+const apiRouter = require('./routes/api-router');
 
 app.use(express.json())
 
-app.get("/api", getApi);
-
-app.get("/api/topics", getTopics)
+app.use('/api', apiRouter); 
 
 app.get('/api/articles/:article_id', getArticleById)
 
