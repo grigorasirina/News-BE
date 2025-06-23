@@ -141,6 +141,25 @@
         "exampleResponse": { "msg": "Comment not found" }
       }
     }
+  },
+
+
+"GET /api/articles": {
+  "description": "serves an array of all articles, accepts sort_by and order queries",
+  "queries": ["topic", "sort_by", "order"], 
+  "exampleResponse": {
+    "articles": [
+      {
+        "title": "Seafood substitutions are ethical",
+        "topic": "cooking",
+        "author": "weegembump",
+        "body": "Text from the article..",
+        "created_at": "2020-07-28T10:33:00.000Z",
+        "votes": 0,
+        "comment_count": 0
+      }
+    ]
   }
+}
 }
 
