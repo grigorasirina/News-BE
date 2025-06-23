@@ -1,6 +1,19 @@
 const db = require("../db/connection");
 const articles = require("../db/data/test-data/articles");
 
+
+const checkTopicExists = (topic) => {
+  if (!topic) return Promise.resolve(true);
+  return db
+    .query("SELECT * FROM topics WHERE slug = $1;", [topic])
+    .then(({ rows }) => {
+      if (rows.length === 0) {
+        return Promise.reject({ status: 404, msg: "Topic not found" });
+      }
+      return true; 
+    });
+};
+
 const fetchTopics = () => {
   let queryStr = `SELECT slug, description, img_url FROM topics`;
   return db.query(queryStr).then(({ rows }) => {
@@ -57,6 +70,7 @@ const fetchArticles = (
     return Promise.reject({ status: 400, msg: "Invalid order query" });
   }
 
+  return checkTopicExists(topic).then(() => {
   let queryStr = `
       SELECT
         articles.author,
@@ -95,6 +109,7 @@ const fetchArticles = (
       console.error("DB Error:", err);
       throw err;
     });
+  })
 };
 
 const fetchArticleComments = (articleId) => {
