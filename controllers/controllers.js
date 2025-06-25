@@ -85,6 +85,14 @@ const getArticleComments = (req, res, next) => {
     });
 };
 
+const getUsers = (req, res, next) => {
+  return fetchUserByUsername()
+    .then((users) => {
+      res.status(200).send({ users });
+    })
+    .catch(next);
+};
+
 const postArticleComment = (req, res, next) => {
   const { article_id } = req.params;
   const { username, body } = req.body;
@@ -171,4 +179,5 @@ module.exports = {
   postArticleComment,
   patchArticleById,
   deleteCommentById,
+  getUsers,
 };
