@@ -187,6 +187,18 @@ const removeCommentById = (commentId) => {
   });
 };
 
+exports.fetchAllUsers = () => {
+  return db.query('SELECT * FROM users;').then(({ rows }) => rows);
+};
+
+const getUsers = (req, res, next) => {
+  return fetchAllUsers() 
+    .then((users) => {
+      res.status(200).send({ users });
+    })
+    .catch(next);
+};
+
 module.exports = {
   fetchTopics,
   fetchArticleById,

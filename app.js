@@ -9,8 +9,6 @@ app.use(express.json());
 
 app.use("/api", apiRouter);
 
-
-
 app.use((err, req, res, next) => {
   console.error(err);
 
