@@ -524,4 +524,13 @@ describe("GET /api/users/:username", () => {
         });
       });
   });
+
+   test("404: responds with 'User not found' when given a valid but non-existent username", () => {
+    return request(app)
+      .get("/api/users/not_a_user")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("msg", "User not found");
+      });
+  });
 });
