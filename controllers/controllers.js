@@ -93,6 +93,17 @@ const getUsers = (req, res, next) => {
     .catch(next);
 };
 
+
+const getUserByUsername = (req, res, next) => {
+  const { username } = req.params;
+  fetchUserByUsername(username) 
+    .then((user) => {
+      res.status(200).send({ user });
+    })
+    .catch(next);
+};
+
+
 const postArticleComment = (req, res, next) => {
   const { article_id } = req.params;
   const { username, body } = req.body;
@@ -180,4 +191,5 @@ module.exports = {
   patchArticleById,
   deleteCommentById,
   getUsers,
+  getUserByUsername,
 };
