@@ -8,6 +8,7 @@ const {
   addArticleComment,
   updateArticleVotes,
   removeCommentById,
+  updateCommentVotes,
 } = require("../models/model");
 
 const getApi = (req, res) => {
@@ -181,6 +182,27 @@ const deleteCommentById = (req, res, next) => {
     });
 };
 
+const patchCommentById = (req, res, next) => {
+  const { comment_id } = req.params;
+  const { inc_votes } = req.body;
+
+  if (isNaN(comment_id)) {
+    return res.status(400).send({ msg: 'Invalid comment ID format' });
+  }
+  if (inc_votes === undefined) {
+    return res.status(400).send({ msg: 'Missing inc_votes' });
+  }
+  if (typeof inc_votes !== 'number') {
+    return res.status(400).send({ msg: 'Invalid inc_votes value' });
+  }
+
+  updateCommentVotes(comment_id, inc_votes) 
+    .then((comment) => {
+      res.status(200).send({ comment });
+    })
+    .catch(next); 
+};
+
 module.exports = {
   getApi,
   getTopics,
@@ -192,4 +214,5 @@ module.exports = {
   deleteCommentById,
   getUsers,
   getUserByUsername,
+  patchCommentById,
 };
