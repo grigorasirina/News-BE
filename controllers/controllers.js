@@ -10,6 +10,7 @@ const {
   removeCommentById,
   updateCommentVotes,
   insertArticle,
+  checkTopicExists,
 } = require("../models/model");
 
 const getApi = (req, res) => {
@@ -95,16 +96,14 @@ const getUsers = (req, res, next) => {
     .catch(next);
 };
 
-
 const getUserByUsername = (req, res, next) => {
   const { username } = req.params;
-  fetchUserByUsername(username) 
+  fetchUserByUsername(username)
     .then((user) => {
       res.status(200).send({ user });
     })
     .catch(next);
 };
-
 
 const postArticleComment = (req, res, next) => {
   const { article_id } = req.params;
@@ -188,31 +187,53 @@ const patchCommentById = (req, res, next) => {
   const { inc_votes } = req.body;
 
   if (isNaN(comment_id)) {
-    return res.status(400).send({ msg: 'Invalid comment ID format' });
+    return res.status(400).send({ msg: "Invalid comment ID format" });
   }
   if (inc_votes === undefined) {
-    return res.status(400).send({ msg: 'Missing inc_votes' });
+    return res.status(400).send({ msg: "Missing inc_votes" });
   }
-  if (typeof inc_votes !== 'number') {
-    return res.status(400).send({ msg: 'Invalid inc_votes value' });
+  if (typeof inc_votes !== "number") {
+    return res.status(400).send({ msg: "Invalid inc_votes value" });
   }
 
-  updateCommentVotes(comment_id, inc_votes) 
+  updateCommentVotes(comment_id, inc_votes)
     .then((comment) => {
       res.status(200).send({ comment });
     })
-    .catch(next); 
+    .catch(next);
 };
-
 
 const postArticle = (req, res, next) => {
   const { author, title, body, topic, article_img_url } = req.body;
 
-  insertArticle(author, title, body, topic, article_img_url)
+  if (!author || !title || !body || !topic) {
+    return res
+      .status(400)
+      .send({ msg: "Bad Request: Missing required fields" });
+  }
+
+  Promise.all([fetchUserByUsername(author), checkTopicExists(topic)])
+    .then(() => {
+      return insertArticle(author, title, body, topic, article_img_url);
+    })
     .then((article) => {
       res.status(201).send({ article });
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.status === 404) {
+        if (err.msg === "User not found") {
+          return res
+            .status(404)
+            .send({ msg: "Not Found: Author does not exist" });
+        }
+        if (err.msg === "Topic not found") {
+          return res
+            .status(404)
+            .send({ msg: "Not Found: Topic does not exist" });
+        }
+      }
+      next(err);
+    });
 };
 
 module.exports = {
