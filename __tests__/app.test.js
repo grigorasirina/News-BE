@@ -650,4 +650,106 @@ describe("POST /api/articles", () => {
         });
       });
   });
+
+  test("400: responds with 'Bad Request: Missing required fields' if author is missing", () => {
+    const newArticle = {
+      
+      title: "Title",
+      body: "Body",
+      topic: "mitch",
+      article_img_url: "http://example.com/img.jpg",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("msg", "Bad Request: Missing required fields");
+      });
+  });
+
+  test("400: responds with 'Bad Request: Missing required fields' if title is missing", () => {
+    const newArticle = {
+      author: "butter_bridge",
+      
+      body: "Body",
+      topic: "mitch",
+      article_img_url: "http://example.com/img.jpg",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("msg", "Bad Request: Missing required fields");
+      });
+  });
+
+  test("400: responds with 'Bad Request: Missing required fields' if body is missing", () => {
+    const newArticle = {
+      author: "butter_bridge",
+      title: "Title",
+     
+      topic: "mitch",
+      article_img_url: "http://example.com/img.jpg",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("msg", "Bad Request: Missing required fields");
+      });
+  });
+
+  test("400: responds with 'Bad Request: Missing required fields' if topic is missing", () => {
+    const newArticle = {
+      author: "butter_bridge",
+      title: "Title",
+      body: "Body",
+      
+      article_img_url: "http://example.com/img.jpg",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("msg", "Bad Request: Missing required fields");
+      });
+  });
+
+  test("404: responds with 'Not Found: Topic does not exist' if provided topic does not exist", () => {
+    const newArticle = {
+      author: "butter_bridge",
+      title: "Title",
+      body: "Body",
+      topic: "non_existent_topic", 
+      article_img_url: "http://example.com/img.jpg",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("msg", "Not Found: Topic does not exist");
+      });
+  });
+
+  test("404: responds with 'Not Found: Author does not exist' if provided author does not exist", () => {
+    const newArticle = {
+      author: "non_existent_author",
+      title: "Title",
+      body: "Body",
+      topic: "mitch",
+      article_img_url: "http://example.com/img.jpg",
+    };
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("msg", "Not Found: Author does not exist");
+      });
+  });
 });
