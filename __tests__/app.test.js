@@ -618,3 +618,36 @@ describe("PATCH /api/comments/:comment_id", () => {
       });
   });
 });
+
+
+describe("POST /api/articles", () => {
+  test("201: creates a new article and responds with the newly added article object", () => {
+    const newArticle = {
+      author: "butter_bridge", 
+      title: "The Joys of TDD",
+      body: "Test-driven development is a beautiful thing.",
+      topic: "mitch", 
+      article_img_url:
+        "https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1000&q=80",
+    };
+
+    return request(app)
+      .post("/api/articles")
+      .send(newArticle)
+      .expect(201)
+      .then(({ body: { article } }) => {
+        expect(article).toMatchObject({
+          article_id: expect.any(Number), 
+          author: "butter_bridge",
+          title: "The Joys of TDD",
+          body: "Test-driven development is a beautiful thing.",
+          topic: "mitch",
+          article_img_url:
+            "https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1000&q=80",
+          votes: 0, 
+          created_at: expect.any(String), 
+          comment_count: 0, 
+        });
+      });
+  });
+});
