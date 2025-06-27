@@ -216,6 +216,26 @@ const updateCommentVotes = (comment_id, inc_votes) => {
   });
 };
 
+
+const insertArticle = (author, title, body, topic, article_img_url) => {
+  const default_img_url =
+    "https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1000&q=80"; // Example default
+  const final_article_img_url = article_img_url || default_img_url;
+
+  return db.query(
+    `INSERT INTO articles
+       (author, title, body, topic, article_img_url)
+     VALUES
+       ($1, $2, $3, $4, $5)
+     RETURNING article_id, author, title, body, topic, article_img_url, votes, created_at;`, // Don't forget to return created_at and votes (default 0)
+    [author, title, body, topic, final_article_img_url]
+  )
+  .then(({ rows }) => {
+    const newArticle = { ...rows[0], comment_count: 0 };
+    return newArticle;
+  });
+};
+
 module.exports = {
   fetchTopics,
   fetchArticleById,
@@ -227,4 +247,5 @@ module.exports = {
   removeCommentById,
   updateCommentVotes,
   getUsers,
+  insertArticle,
 };

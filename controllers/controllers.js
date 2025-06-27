@@ -9,6 +9,7 @@ const {
   updateArticleVotes,
   removeCommentById,
   updateCommentVotes,
+  insertArticle,
 } = require("../models/model");
 
 const getApi = (req, res) => {
@@ -203,6 +204,17 @@ const patchCommentById = (req, res, next) => {
     .catch(next); 
 };
 
+
+const postArticle = (req, res, next) => {
+  const { author, title, body, topic, article_img_url } = req.body;
+
+  insertArticle(author, title, body, topic, article_img_url)
+    .then((article) => {
+      res.status(201).send({ article });
+    })
+    .catch(next);
+};
+
 module.exports = {
   getApi,
   getTopics,
@@ -215,4 +227,5 @@ module.exports = {
   getUsers,
   getUserByUsername,
   patchCommentById,
+  postArticle,
 };
