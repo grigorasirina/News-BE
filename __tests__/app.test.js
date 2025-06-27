@@ -475,17 +475,16 @@ describe("GET /api/articles (Sorting Queries)", () => {
   });
 });
 
-
 describe("GET /api/articles (topic query)", () => {
   test("200: responds with articles filtered by a valid topic query", () => {
     return request(app)
-      .get("/api/articles?topic=mitch") 
+      .get("/api/articles?topic=mitch")
       .expect(200)
       .then(({ body: { articles } }) => {
         expect(articles).toBeInstanceOf(Array);
-        expect(articles.length).toBeGreaterThan(0); 
+        expect(articles.length).toBeGreaterThan(0);
         articles.forEach((article) => {
-          expect(article).toHaveProperty("topic", "mitch"); 
+          expect(article).toHaveProperty("topic", "mitch");
           expect(article).toMatchObject({
             article_id: expect.any(Number),
             title: expect.any(String),
@@ -495,14 +494,14 @@ describe("GET /api/articles (topic query)", () => {
             article_img_url: expect.any(String),
             comment_count: expect.any(Number),
           });
-          expect(article).not.toHaveProperty("body"); 
+          expect(article).not.toHaveProperty("body");
         });
       });
   });
 
   test("404: responds with error if topic does not exist", () => {
     return request(app)
-      .get("/api/articles?topic=nonexistenttopic123") 
+      .get("/api/articles?topic=nonexistenttopic123")
       .expect(404)
       .then(({ body }) => {
         expect(body).toHaveProperty("msg", "Topic not found");
@@ -525,12 +524,34 @@ describe("GET /api/users/:username", () => {
       });
   });
 
-   test("404: responds with 'User not found' when given a valid but non-existent username", () => {
+  test("404: responds with 'User not found' when given a valid but non-existent username", () => {
     return request(app)
       .get("/api/users/not_a_user")
       .expect(404)
       .then(({ body }) => {
         expect(body).toHaveProperty("msg", "User not found");
+      });
+  });
+});
+
+describe("PATCH /api/comments/:comment_id", () => {
+  test("200: increments the votes of an existing comment and responds with the updated comment", () => {
+    const commentIdToUpdate = 1;
+    const newVotes = { inc_votes: 1 };
+
+    return request(app)
+      .patch(`/api/comments/${commentIdToUpdate}`)
+      .send(newVotes)
+      .expect(200)
+      .then(({ body: { comment } }) => {
+        expect(comment).toMatchObject({
+          comment_id: commentIdToUpdate,
+          body: expect.any(String),
+          article_id: expect.any(Number),
+          author: expect.any(String),
+          votes: 17,
+          created_at: expect.any(String),
+        });
       });
   });
 });
