@@ -534,6 +534,7 @@ describe("GET /api/users/:username", () => {
   });
 });
 
+
 describe("PATCH /api/comments/:comment_id", () => {
   test("200: increments the votes of an existing comment and responds with the updated comment", () => {
     const commentIdToUpdate = 1;
@@ -551,6 +552,68 @@ describe("PATCH /api/comments/:comment_id", () => {
           author: expect.any(String),
           votes: 17,
           created_at: expect.any(String),
+        });
+      });
+  });
+
+  test("404: responds with 'Comment not found' if comment_id is valid but does not exist", () => {
+    const newVotes = { inc_votes: 1 };
+    return request(app)
+      .patch("/api/comments/999999") 
+      .send(newVotes)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("msg", "Comment not found");
+      });
+  });
+
+  test("400: responds with 'Bad Request' if comment_id is not a number", () => {
+    const newVotes = { inc_votes: 1 };
+    return request(app)
+      .patch("/api/comments/not-a-number")
+      .send(newVotes)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("msg", "Invalid comment ID format"); 
+      });
+  });
+
+  test("400: responds with 'Missing inc_votes' if request body is empty", () => {
+    const commentIdToUpdate = 1;
+    return request(app)
+      .patch(`/api/comments/${commentIdToUpdate}`)
+      .send({}) 
+      .expect(400)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("msg", "Missing inc_votes");
+      });
+  });
+
+  test("400: responds with 'Invalid inc_votes value' if inc_votes is not a number", () => {
+    const commentIdToUpdate = 1;
+    const newVotes = { inc_votes: "one" }; 
+    return request(app)
+      .patch(`/api/comments/${commentIdToUpdate}`)
+      .send(newVotes)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("msg", "Invalid inc_votes value");
+      });
+  });
+
+  test("200: responds with unchanged comment if inc_votes is 0", () => {
+    const commentIdToUpdate = 1; 
+    const initialVotes = 16; 
+    const newVotes = { inc_votes: 0 };
+
+    return request(app)
+      .patch(`/api/comments/${commentIdToUpdate}`)
+      .send(newVotes)
+      .expect(200)
+      .then(({ body: { comment } }) => {
+        expect(comment).toMatchObject({
+          comment_id: commentIdToUpdate,
+          votes: initialVotes, 
         });
       });
   });
