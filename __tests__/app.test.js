@@ -753,3 +753,23 @@ describe("POST /api/articles", () => {
       });
   });
 });
+
+describe("POST /api/topics", () => {
+  test("201: creates a new topic and responds with the newly added topic object", () => {
+    const newTopic = {
+      slug: "new_topic_name", 
+      description: "A description for the new topic.",
+    };
+
+    return request(app)
+      .post("/api/topics")
+      .send(newTopic)
+      .expect(201)
+      .then(({ body: { topic } }) => {
+        expect(topic).toMatchObject({
+          slug: "new_topic_name",
+          description: "A description for the new topic.",
+        });
+      });
+  });
+});

@@ -11,6 +11,7 @@ const {
   updateCommentVotes,
   insertArticle,
   checkTopicExists,
+  insertTopic,
 } = require("../models/model");
 
 const getApi = (req, res) => {
@@ -236,6 +237,17 @@ const postArticle = (req, res, next) => {
     });
 };
 
+
+const postTopic = (req, res, next) => {
+  const { slug, description } = req.body;
+
+  insertTopic(slug, description)
+    .then((topic) => {
+      res.status(201).send({ topic });
+    })
+    .catch(next); 
+};
+
 module.exports = {
   getApi,
   getTopics,
@@ -249,4 +261,5 @@ module.exports = {
   getUserByUsername,
   patchCommentById,
   postArticle,
+  postTopic,
 };
