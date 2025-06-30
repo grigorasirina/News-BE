@@ -236,21 +236,19 @@ const insertArticle = (author, title, body, topic, article_img_url) => {
   });
 };
 
-
-// const checkTopicExists = (topic) => {
-//   return db.query(
-//     `SELECT * FROM topics
-//      WHERE slug = $1;`,
-//     [topic]
-//   )
-//   .then(({ rows }) => {
-//     if (rows.length === 0) {
-//       return Promise.reject({ status: 404, msg: 'Topic not found' });
-//     }
-   
-//     return true; 
-//   });
-// };
+const insertTopic = (slug, description) => {
+  return db.query(
+    `INSERT INTO topics
+       (slug, description)
+     VALUES
+       ($1, $2)
+     RETURNING *;`, 
+    [slug, description]
+  )
+  .then(({ rows }) => {
+    return rows[0]; 
+  });
+};
 
 
 
@@ -267,4 +265,5 @@ module.exports = {
   getUsers,
   insertArticle,
   checkTopicExists,
+   insertTopic,
 };
