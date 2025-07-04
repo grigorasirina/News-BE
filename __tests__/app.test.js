@@ -534,7 +534,6 @@ describe("GET /api/users/:username", () => {
   });
 });
 
-
 describe("PATCH /api/comments/:comment_id", () => {
   test("200: increments the votes of an existing comment and responds with the updated comment", () => {
     const commentIdToUpdate = 1;
@@ -559,7 +558,7 @@ describe("PATCH /api/comments/:comment_id", () => {
   test("404: responds with 'Comment not found' if comment_id is valid but does not exist", () => {
     const newVotes = { inc_votes: 1 };
     return request(app)
-      .patch("/api/comments/999999") 
+      .patch("/api/comments/999999")
       .send(newVotes)
       .expect(404)
       .then(({ body }) => {
@@ -574,7 +573,7 @@ describe("PATCH /api/comments/:comment_id", () => {
       .send(newVotes)
       .expect(400)
       .then(({ body }) => {
-        expect(body).toHaveProperty("msg", "Invalid comment ID format"); 
+        expect(body).toHaveProperty("msg", "Invalid comment ID format");
       });
   });
 
@@ -582,7 +581,7 @@ describe("PATCH /api/comments/:comment_id", () => {
     const commentIdToUpdate = 1;
     return request(app)
       .patch(`/api/comments/${commentIdToUpdate}`)
-      .send({}) 
+      .send({})
       .expect(400)
       .then(({ body }) => {
         expect(body).toHaveProperty("msg", "Missing inc_votes");
@@ -591,7 +590,7 @@ describe("PATCH /api/comments/:comment_id", () => {
 
   test("400: responds with 'Invalid inc_votes value' if inc_votes is not a number", () => {
     const commentIdToUpdate = 1;
-    const newVotes = { inc_votes: "one" }; 
+    const newVotes = { inc_votes: "one" };
     return request(app)
       .patch(`/api/comments/${commentIdToUpdate}`)
       .send(newVotes)
@@ -602,8 +601,8 @@ describe("PATCH /api/comments/:comment_id", () => {
   });
 
   test("200: responds with unchanged comment if inc_votes is 0", () => {
-    const commentIdToUpdate = 1; 
-    const initialVotes = 16; 
+    const commentIdToUpdate = 1;
+    const initialVotes = 16;
     const newVotes = { inc_votes: 0 };
 
     return request(app)
@@ -613,20 +612,19 @@ describe("PATCH /api/comments/:comment_id", () => {
       .then(({ body: { comment } }) => {
         expect(comment).toMatchObject({
           comment_id: commentIdToUpdate,
-          votes: initialVotes, 
+          votes: initialVotes,
         });
       });
   });
 });
 
-
 describe("POST /api/articles", () => {
   test("201: creates a new article and responds with the newly added article object", () => {
     const newArticle = {
-      author: "butter_bridge", 
+      author: "butter_bridge",
       title: "The Joys of TDD",
       body: "Test-driven development is a beautiful thing.",
-      topic: "mitch", 
+      topic: "mitch",
       article_img_url:
         "https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1000&q=80",
     };
@@ -637,23 +635,22 @@ describe("POST /api/articles", () => {
       .expect(201)
       .then(({ body: { article } }) => {
         expect(article).toMatchObject({
-          article_id: expect.any(Number), 
+          article_id: expect.any(Number),
           author: "butter_bridge",
           title: "The Joys of TDD",
           body: "Test-driven development is a beautiful thing.",
           topic: "mitch",
           article_img_url:
             "https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1000&q=80",
-          votes: 0, 
-          created_at: expect.any(String), 
-          comment_count: 0, 
+          votes: 0,
+          created_at: expect.any(String),
+          comment_count: 0,
         });
       });
   });
 
   test("400: responds with 'Bad Request: Missing required fields' if author is missing", () => {
     const newArticle = {
-      
       title: "Title",
       body: "Body",
       topic: "mitch",
@@ -664,14 +661,17 @@ describe("POST /api/articles", () => {
       .send(newArticle)
       .expect(400)
       .then(({ body }) => {
-        expect(body).toHaveProperty("msg", "Bad Request: Missing required fields");
+        expect(body).toHaveProperty(
+          "msg",
+          "Bad Request: Missing required fields"
+        );
       });
   });
 
   test("400: responds with 'Bad Request: Missing required fields' if title is missing", () => {
     const newArticle = {
       author: "butter_bridge",
-      
+
       body: "Body",
       topic: "mitch",
       article_img_url: "http://example.com/img.jpg",
@@ -681,7 +681,10 @@ describe("POST /api/articles", () => {
       .send(newArticle)
       .expect(400)
       .then(({ body }) => {
-        expect(body).toHaveProperty("msg", "Bad Request: Missing required fields");
+        expect(body).toHaveProperty(
+          "msg",
+          "Bad Request: Missing required fields"
+        );
       });
   });
 
@@ -689,7 +692,7 @@ describe("POST /api/articles", () => {
     const newArticle = {
       author: "butter_bridge",
       title: "Title",
-     
+
       topic: "mitch",
       article_img_url: "http://example.com/img.jpg",
     };
@@ -698,7 +701,10 @@ describe("POST /api/articles", () => {
       .send(newArticle)
       .expect(400)
       .then(({ body }) => {
-        expect(body).toHaveProperty("msg", "Bad Request: Missing required fields");
+        expect(body).toHaveProperty(
+          "msg",
+          "Bad Request: Missing required fields"
+        );
       });
   });
 
@@ -707,7 +713,7 @@ describe("POST /api/articles", () => {
       author: "butter_bridge",
       title: "Title",
       body: "Body",
-      
+
       article_img_url: "http://example.com/img.jpg",
     };
     return request(app)
@@ -715,7 +721,10 @@ describe("POST /api/articles", () => {
       .send(newArticle)
       .expect(400)
       .then(({ body }) => {
-        expect(body).toHaveProperty("msg", "Bad Request: Missing required fields");
+        expect(body).toHaveProperty(
+          "msg",
+          "Bad Request: Missing required fields"
+        );
       });
   });
 
@@ -724,7 +733,7 @@ describe("POST /api/articles", () => {
       author: "butter_bridge",
       title: "Title",
       body: "Body",
-      topic: "non_existent_topic", 
+      topic: "non_existent_topic",
       article_img_url: "http://example.com/img.jpg",
     };
     return request(app)
@@ -757,7 +766,7 @@ describe("POST /api/articles", () => {
 describe("POST /api/topics", () => {
   test("201: creates a new topic and responds with the newly added topic object", () => {
     const newTopic = {
-      slug: "new_topic_name", 
+      slug: "new_topic_name",
       description: "A description for the new topic.",
     };
 
@@ -782,7 +791,10 @@ describe("POST /api/topics", () => {
       .send(newTopic)
       .expect(400)
       .then(({ body }) => {
-        expect(body).toHaveProperty("msg", "Bad Request: Missing required fields");
+        expect(body).toHaveProperty(
+          "msg",
+          "Bad Request: Missing required fields"
+        );
       });
   });
 
@@ -795,13 +807,16 @@ describe("POST /api/topics", () => {
       .send(newTopic)
       .expect(400)
       .then(({ body }) => {
-        expect(body).toHaveProperty("msg", "Bad Request: Missing required fields");
+        expect(body).toHaveProperty(
+          "msg",
+          "Bad Request: Missing required fields"
+        );
       });
   });
 
   test("409: responds with 'Conflict: Topic already exists' if slug already exists", () => {
     const existingTopic = {
-      slug: "mitch", 
+      slug: "mitch",
       description: "Existing topic description.",
     };
     return request(app)
@@ -810,6 +825,44 @@ describe("POST /api/topics", () => {
       .expect(409)
       .then(({ body }) => {
         expect(body).toHaveProperty("msg", "Conflict: Topic already exists");
+      });
+  });
+});
+
+describe("DELETE /api/articles/:article_id", () => {
+  test("204: deletes the specified article and its associated comments, responds with no content", () => {
+    const articleIdToDelete = 1;
+    return request(app)
+      .get(`/api/articles/${articleIdToDelete}`)
+      .expect(200)
+      .then(() => {
+        return request(app)
+          .get(`/api/articles/${articleIdToDelete}/comments`)
+          .expect(200)
+          .then(({ body: { comments } }) => {
+            expect(comments.length).toBeGreaterThan(0);
+          });
+      })
+      .then(() => {
+        return request(app)
+          .delete(`/api/articles/${articleIdToDelete}`)
+          .expect(204);
+      })
+      .then(() => {
+        return request(app)
+          .get(`/api/articles/${articleIdToDelete}`)
+          .expect(404)
+          .then(({ body }) => {
+            expect(body).toHaveProperty("msg", "Article not found");
+          });
+      })
+      .then(() => {
+        return request(app)
+          .get(`/api/articles/${articleIdToDelete}/comments`)
+          .expect(404)
+          .then(({ body }) => {
+            expect(body).toHaveProperty("msg", "Article not found");
+          });
       });
   });
 });
