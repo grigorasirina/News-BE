@@ -12,6 +12,7 @@ const {
   insertArticle,
   checkTopicExists,
   insertTopic,
+  removeArticleById,
 } = require("../models/model");
 
 const getApi = (req, res) => {
@@ -237,19 +238,34 @@ const postArticle = (req, res, next) => {
     });
 };
 
-
 const postTopic = (req, res, next) => {
   const { slug, description } = req.body;
 
   if (!slug || !description) {
-    return res.status(400).send({ msg: "Bad Request: Missing required fields" });
+    return res
+      .status(400)
+      .send({ msg: "Bad Request: Missing required fields" });
   }
 
   insertTopic(slug, description)
     .then((topic) => {
       res.status(201).send({ topic });
     })
-    .catch(next); 
+    .catch(next);
+};
+
+const deleteArticleById = (req, res, next) => {
+  const { article_id } = req.params;
+
+  if (isNaN(article_id)) {
+    return res.status(400).send({ msg: "Invalid article ID format" });
+  }
+
+  removeArticleById(article_id)
+    .then(() => {
+      res.status(204).send();
+    })
+    .catch(next);
 };
 
 module.exports = {
@@ -266,4 +282,5 @@ module.exports = {
   patchCommentById,
   postArticle,
   postTopic,
+  deleteArticleById,
 };

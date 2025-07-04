@@ -1,7 +1,6 @@
 const db = require("../db/connection");
 const articles = require("../db/data/test-data/articles");
 
-
 const checkTopicExists = (topic) => {
   if (!topic) return Promise.resolve(true);
   return db
@@ -10,7 +9,7 @@ const checkTopicExists = (topic) => {
       if (rows.length === 0) {
         return Promise.reject({ status: 404, msg: "Topic not found" });
       }
-      return true; 
+      return true;
     });
 };
 
@@ -71,7 +70,7 @@ const fetchArticles = (
   }
 
   return checkTopicExists(topic).then(() => {
-  let queryStr = `
+    let queryStr = `
       SELECT
         articles.author,
         articles.title,
@@ -85,31 +84,31 @@ const fetchArticles = (
       LEFT JOIN comments ON articles.article_id = comments.article_id
     `;
 
-  const queryValues = [];
-  let whereClause = "";
-  let queryIndex = 1;
+    const queryValues = [];
+    let whereClause = "";
+    let queryIndex = 1;
 
-  if (topic) {
-    whereClause += ` WHERE articles.topic = $${queryIndex++}`;
-    queryValues.push(topic);
-  }
+    if (topic) {
+      whereClause += ` WHERE articles.topic = $${queryIndex++}`;
+      queryValues.push(topic);
+    }
 
-  queryStr += whereClause;
-  queryStr += `
+    queryStr += whereClause;
+    queryStr += `
     GROUP BY articles.article_id
     ORDER BY articles.${sort_by} ${order.toUpperCase()};
   `;
 
-  return db
-    .query(queryStr, queryValues)
-    .then(({ rows }) => {
-      return rows;
-    })
-    .catch((err) => {
-      console.error("DB Error:", err);
-      throw err;
-    });
-  })
+    return db
+      .query(queryStr, queryValues)
+      .then(({ rows }) => {
+        return rows;
+      })
+      .catch((err) => {
+        console.error("DB Error:", err);
+        throw err;
+      });
+  });
 };
 
 const fetchArticleComments = (articleId) => {
@@ -188,69 +187,84 @@ const removeCommentById = (commentId) => {
 };
 
 exports.fetchAllUsers = () => {
-  return db.query('SELECT * FROM users;').then(({ rows }) => rows);
+  return db.query("SELECT * FROM users;").then(({ rows }) => rows);
 };
 
 const getUsers = (req, res, next) => {
-  return fetchAllUsers() 
+  return fetchAllUsers()
     .then((users) => {
       res.status(200).send({ users });
     })
     .catch(next);
 };
 
-
 const updateCommentVotes = (comment_id, inc_votes) => {
-  return db.query(
-    `UPDATE comments
+  return db
+    .query(
+      `UPDATE comments
      SET votes = votes + $1
      WHERE comment_id = $2
      RETURNING *;`,
-    [inc_votes, comment_id]
-  )
-  .then(({ rows }) => {
-    if (rows.length === 0) {
-      return Promise.reject({ status: 404, msg: 'Comment not found' });
-    }
-    return rows[0];
-  });
+      [inc_votes, comment_id]
+    )
+    .then(({ rows }) => {
+      if (rows.length === 0) {
+        return Promise.reject({ status: 404, msg: "Comment not found" });
+      }
+      return rows[0];
+    });
 };
-
 
 const insertArticle = (author, title, body, topic, article_img_url) => {
   const default_img_url =
     "https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1000&q=80"; // Example default
   const final_article_img_url = article_img_url || default_img_url;
 
-  return db.query(
-    `INSERT INTO articles
+  return db
+    .query(
+      `INSERT INTO articles
        (author, title, body, topic, article_img_url)
      VALUES
        ($1, $2, $3, $4, $5)
      RETURNING article_id, author, title, body, topic, article_img_url, votes, created_at;`, // Don't forget to return created_at and votes (default 0)
-    [author, title, body, topic, final_article_img_url]
-  )
-  .then(({ rows }) => {
-    const newArticle = { ...rows[0], comment_count: 0 };
-    return newArticle;
-  });
+      [author, title, body, topic, final_article_img_url]
+    )
+    .then(({ rows }) => {
+      const newArticle = { ...rows[0], comment_count: 0 };
+      return newArticle;
+    });
 };
 
 const insertTopic = (slug, description) => {
-  return db.query(
-    `INSERT INTO topics
+  return db
+    .query(
+      `INSERT INTO topics
        (slug, description)
      VALUES
        ($1, $2)
-     RETURNING *;`, 
-    [slug, description]
-  )
-  .then(({ rows }) => {
-    return rows[0]; 
-  });
+     RETURNING *;`,
+      [slug, description]
+    )
+    .then(({ rows }) => {
+      return rows[0];
+    });
 };
 
-
+const removeArticleById = (article_id) => {
+  return db
+    .query(
+      `DELETE FROM articles
+     WHERE article_id = $1
+     RETURNING *;`,
+      [article_id]
+    )
+    .then(({ rows }) => {
+      if (rows.length === 0) {
+        return Promise.reject({ status: 404, msg: "Article not found" });
+      }
+      return;
+    });
+};
 
 module.exports = {
   fetchTopics,
@@ -265,5 +279,6 @@ module.exports = {
   getUsers,
   insertArticle,
   checkTopicExists,
-   insertTopic,
+  insertTopic,
+  removeArticleById,
 };
