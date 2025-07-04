@@ -192,6 +192,12 @@
     }
   },
 
+   "DELETE /api/articles/:article_id": {
+    "description": "deletes an article by its ID and its associated comments",
+    "queries": [],
+    "exampleResponse": "Status 204: No Content"
+  },
+
   "PATCH /api/comments/:comment_id": {
     "description": "updates the votes on a comment by comment_id",
     "queries": [],
