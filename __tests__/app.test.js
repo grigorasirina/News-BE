@@ -865,4 +865,22 @@ describe("DELETE /api/articles/:article_id", () => {
           });
       });
   });
+  test("400: Responds with an error message for an invalid article ID format", () => {
+    return request(app)
+      .delete("/api/articles/not-a-number")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("msg", "Invalid article ID format");
+      });
+  });
+
+  test("404: Responds with an error message for a non-existent article ID", () => {
+    const nonExistentId = 999999;
+    return request(app)
+      .delete(`/api/articles/${nonExistentId}`)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("msg", "Article not found");
+      });
+  });
 });
