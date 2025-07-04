@@ -11,6 +11,21 @@
     }
   },
 
+  "POST /api/topics": {
+    "description": "adds a new topic to the database",
+    "queries": [],
+    "exampleRequest": {
+      "slug": "programming",
+      "description": "Topics related to coding and software development."
+    },
+    "exampleResponse": {
+      "topic": {
+        "slug": "programming",
+        "description": "Topics related to coding and software development."
+      }
+    }
+  },
+
   "GET /api/articles": {
     "description": "serves an array of all articles, accepts sort_by and order queries",
     "queries": ["topic", "sort_by", "order"],
@@ -98,7 +113,7 @@
     }
   },
 
-   "GET /api/users": {
+  "GET /api/users": {
     "description": "serves an array of all users",
     "queries": [],
     "exampleResponse": {
