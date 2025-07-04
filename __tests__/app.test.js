@@ -772,4 +772,44 @@ describe("POST /api/topics", () => {
         });
       });
   });
+
+  test("400: responds with 'Bad Request: Missing required fields' if slug is missing", () => {
+    const newTopic = {
+      description: "A description.",
+    };
+    return request(app)
+      .post("/api/topics")
+      .send(newTopic)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("msg", "Bad Request: Missing required fields");
+      });
+  });
+
+  test("400: responds with 'Bad Request: Missing required fields' if description is missing", () => {
+    const newTopic = {
+      slug: "topic_without_description",
+    };
+    return request(app)
+      .post("/api/topics")
+      .send(newTopic)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("msg", "Bad Request: Missing required fields");
+      });
+  });
+
+  test("409: responds with 'Conflict: Topic already exists' if slug already exists", () => {
+    const existingTopic = {
+      slug: "mitch", 
+      description: "Existing topic description.",
+    };
+    return request(app)
+      .post("/api/topics")
+      .send(existingTopic)
+      .expect(409)
+      .then(({ body }) => {
+        expect(body).toHaveProperty("msg", "Conflict: Topic already exists");
+      });
+  });
 });

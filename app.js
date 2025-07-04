@@ -18,6 +18,8 @@ app.use((err, req, res, next) => {
     res.status(400).send({ msg: "Invalid input" });
   } else if (err.code === "23502" || err.code === "23503") {
     res.status(400).send({ msg: "Bad request" });
+  } else if (err.code === "23505") {
+    res.status(409).send({ msg: "Conflict: Topic already exists" });
   } else {
     res.status(500).send({ msg: "Internal Server Error" });
   }
